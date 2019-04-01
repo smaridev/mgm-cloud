@@ -69,12 +69,15 @@ def get_thingpointlist(args):
     for thingpoint in thingpoint_list:
         resp_dict = {}
         resp_dict["mac_address"] = thingpoint.get("mac","NA")
-        resp_dict["hostname"] = thingpoint["hostname"]
+        resp_dict["hostname"] = thingpoint.get("hostname","NA")
         resp_dict["location"] = "location1"
-        resp_dict["bundlename"] = thingpoint["bundle_name"]
-        resp_dict["status"] = thingpoint["conn_status"]
-        resp_dict["health"] = "green"
-        resp_dict["serial"] = thingpoint["serial"]
+        resp_dict["bundlename"] = thingpoint.get("bundle_name","NA")
+        resp_dict["status"] = thingpoint.get("conn_status","NA")
+        if resp_dict["status"]:
+            resp_dict["health"] = "green"
+        else:
+            resp_dict["health"] = "red"
+        resp_dict["serial"] = thingpoint.get("serial","NA")
         resp_list.append(resp_dict)
 
     print("response list : {}".format(str(resp_list)))
@@ -128,11 +131,10 @@ def get_snapstore_list(serial):
     thingpoint = dal_obj.get(serial)
     user_snap_list = thingpoint.get('user_snap_list',[])
     for snap in snap_list:
+        snap["status"] = "install"
         for user_snap in user_snap_list:
             if snap["name"] == user_snap["name"]:
                 snap["status"] = user_snap["status"]
-            else:
-                snap["status"] = "install"
     print("store snap list : {}".format(str(snap_list)))
     #snap_store_list = {}
     #snap_store_list['name'] = 
