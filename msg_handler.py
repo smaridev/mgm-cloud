@@ -8,7 +8,8 @@ from pubnub.enums import PNReconnectionPolicy, PNStatusCategory
 from pubnub.pnconfiguration import PNConfiguration
 from pubnub.pubnub import PubNub
 
-system_snap_list = ["iotgw-discovery","mosquitto","pubnub-agent","bluez","pi3","pi2-kernel"]
+system_snap_list = ["iotgw-discovery","mosquitto","pubnub-agent","bluez","pi3","pi2-kernel", "pi", "core18", "snapd"]
+system_snap_type = ["os","kernel","base","gadget","core", "snapd"]
 INSTALLED = "Installed"
 INSTALLING = "Installing"
 FAILED = "Failed"
@@ -133,7 +134,8 @@ def get_bundle_from_tpid(tpid):
     except exceptions.NotFound:
         print('[ERROR]: Entry for model in bundle_db :{} is not present'.format("rasberrypie"))
     #print("snaplist:{}".format(snaplist))
-    return snaplist
+    #return snaplist
+    return []
 
 def send_pushsnap_req(tpid,action,user_snap=None):
     pushsnap_req = {}
@@ -210,19 +212,20 @@ def snaplist_handler(message):
     msg_user = []
     for snap in snaplist:
         snap_dict = {}
-        snap_dict['id'] = snap['id']
-        snap_dict['installed-size'] = snap['installed-size']
-        snap_dict['type'] = snap['type']
-        snap_dict['version'] = snap['version']
-        snap_dict['channel'] = snap['channel']
-        snap_dict['revision'] = snap['revision']
-        snap_dict['devmode'] = snap['devmode']
-        snap_dict['install-date'] = snap['install-date']
-        snap_dict['name'] = snap['name']
+        snap_dict['id'] = snap.get('id',"")
+        snap_dict['installed-size'] = snap.get('installed-size', "")
+        snap_dict['type'] = snap.get('type',"")
+        snap_dict['version'] = snap.get('version',"")
+        snap_dict['channel'] = snap.get('channel', "")
+        snap_dict['revision'] = snap.get('revision',"")
+        snap_dict['devmode'] = snap.get('devmode', False)
+        snap_dict['install-date'] = snap.get('install-date', "")
+        snap_dict['name'] = snap.get('name', "unknown")
         snap_dict['status'] = INSTALLED
-        if(snap['type'] == "os" or snap['type'] == "core" or snap['type'] == "kernel"):
+        #if(snap_dict['type'] == "os" or snap_dict['type'] == "core" or snap_dict['type'] == "kernel"):
+        if(snap_dict['type'] in system_snap_type):
             msg_system.append(snap_dict)
-        elif(snap['type'] == "app" and snap['name'] in system_snap_list):
+        elif(snap_dict['type'] == "app" and snap_dict['name'] in system_snap_list):
             msg_system.append(snap_dict)
         else:
             msg_user.append(snap_dict)
@@ -315,15 +318,15 @@ def snaplistupdate_thingpointdb(thingpoint,dal_obj,snap):
     for n,user_snap in enumerate(user_snap_list):
         if user_snap["name"] == snap["name"]:
             #snap_dict = {}
-            user_snap['id'] = snap['id']
-            user_snap['installed-size'] = snap['installed-size']
-            user_snap['type'] = snap['type']
-            user_snap['version'] = snap['version']
-            user_snap['channel'] = snap['channel']
-            user_snap['revision'] = snap['revision']
-            user_snap['devmode'] = snap['devmode']
-            user_snap['install-date'] = snap['install-date']
-            user_snap['name'] = snap['name']
+            user_snap['id'] = snap.get('id', "")
+            user_snap['installed-size'] = snap.get('installed-size', "")
+            user_snap['type'] = snap.get('type',"")
+            user_snap['version'] = snap.get('version',"")
+            user_snap['channel'] = snap.get('channel',"")
+            user_snap['revision'] = snap.get('revision',"")
+            user_snap['devmode'] = snap.get('devmode',"")
+            user_snap['install-date'] = snap.get('install-date',"")
+            user_snap['name'] = snap.get('name',"unknown")
             user_snap['status'] = INSTALLED
             #user_snap_list[n] = snap_dict
             print("updated snap status:{}".format(user_snap_list))
@@ -335,15 +338,15 @@ def snaplistupdate_thingpointdb(thingpoint,dal_obj,snap):
     for n,system_snap in enumerate(system_snap_list):
         if system_snap["name"] == snap["name"]:
             #snap_dict = {}
-            system_snap['id'] = snap['id']
-            system_snap['installed-size'] = snap['installed-size']
-            system_snap['type'] = snap['type']
-            system_snap['version'] = snap['version']
-            system_snap['channel'] = snap['channel']
-            system_snap['revision'] = snap['revision']
-            system_snap['devmode'] = snap['devmode']
-            system_snap['install-date'] = snap['install-date']
-            system_snap['name'] = snap['name']
+            system_snap['id'] = snap.get('id', "")
+            system_snap['installed-size'] = snap.get('installed-size', "")
+            system_snap['type'] = snap.get('type',"")
+            system_snap['version'] = snap.get('version',"")
+            system_snap['channel'] = snap.get('channel',"")
+            system_snap['revision'] = snap.get('revision',"")
+            system_snap['devmode'] = snap.get('devmode',"")
+            system_snap['install-date'] = snap.get('install-date',"")
+            system_snap['name'] = snap.get('name',"unknown")
             system_snap['status'] = INSTALLED
             #user_snap_list[n] = snap_dict
             print("updated snap status:{}".format(system_snap_list))
